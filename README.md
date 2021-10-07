@@ -1,7 +1,6 @@
 # Workflow Example for Simulink Cache and Jenkins
 
-[![View <File Exchange Title> on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/####-file-exchange-title)  
-<!-- Replace this with the proper URL to the File Exchange link-->
+[![View simulink-cache-jenkins-workflow on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/100376-simulink-cache-jenkins-workflow)
 
 
 This repository contains a Simulink® project and a few utility scripts, which highlight an Agile development workflow using Jenkins™, Git™, and Simulink® cache files.
@@ -38,6 +37,7 @@ Release R2021a
 * Aerospace Blockset
 * Simulink 3D Animation
 * Embedded Coder
+* Database Toolbox
 
 ## Notes
 
