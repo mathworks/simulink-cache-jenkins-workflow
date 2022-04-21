@@ -1,62 +1,33 @@
-function copyBuildArtifacts(buildNum, force)
+function copyBuildArtifacts(buildNum)
 % This script copies all archived build artifacts from the specified 
 % Jenkins build number to the current directory. 
-%    
-% copyBuildArtifacts('lastSuccessfulBuild', true) copies the files from
-% the lastSuccessfulBuild directory of Jenkins build, and forces the copy
-% even if the current git clone hash doesn't match the commit hash for 
-% which the Jenkins build was performed. 
 %
-% copyBuildArtifacts('4', false) copies the files from the '4' directory
-% of the Jenkins build that corresponds to build # 4 only if the 
-% current git clone hash matches the commit hash for which the 
-% Jenkins build was performed.
+% copyBuildArtifacts('4') copies the files from the '4' directory
+% of the Jenkins build that corresponds to build # 4.
 %
-% Copyright 2021 The MathWorks, Inc.
+% Copyright 2021-2022 The MathWorks, Inc.
 
-    % initialize build path
-    buildPath = fullfile(getJenkinsProjDir(), 'builds', buildNum);
-    buildFile = fullfile(buildPath, 'build.xml');
-    
-    % exit if build file doesn't exist
-    if ~isfile(buildFile)
-        fprintf('Build "%s" doesn''t exist. No artifacts to copy to workspace.\n', buildNum);
-        return;
-    end
-    
-    gitBranchName = getCurrentGitBranch();
-    % parse build xml file with MAXP Parser
-    import matlab.io.xml.dom.*
-    buildDoc = parseFile(Parser, buildFile);
-    buildsBBN = getElementsByTagName(buildDoc, 'buildsByBranchName');
-    branchEntries = getElementsByTagName(node(buildsBBN, 1), 'entry');
-    % find matching branch entry
-    for i = 1:branchEntries.Length
-        if (contains(node(branchEntries, i).TextContent, gitBranchName))
-            break;
-        end
-    end
-    buildCommitHash = getElementsByTagName(node(branchEntries, i), 'sha1').TextContent;
-    fprintf('Commit hash for build "%s": %s\n', buildNum, buildCommitHash);
-    
-    % get the commit hash for current git clone
-    gitCloneHash = getCurrentGitHash();
-    fprintf('Commit hash for current git clone: %s\n', gitCloneHash);
-    
-    % ensure current git clone commit hash and the one in the build are the same
-    if ~strcmp(buildCommitHash, gitCloneHash)
-        fprintf('Build %s commit hash and current git clone hash mismatch\n', buildNum);
-        if ~force
-            fprintf('Sync aborted\n');
-            return;
-        end
-        fprintf('Continuing because force option specified\n');
-    end
-    
-    % copy all files from build path's archive area
-    archivePath = fullfile(buildPath, 'archive');
+    % create a temp dir
+    tmpDirName = tempname();
+    mkdir(tmpDirName);
+    oc1 = onCleanup(@()rmdir(tmpDirName, 's'));
+
+    % name of the zip file on path
+    zipName = 'archive.zip';
+    zipFile = fullfile(tmpDirName, zipName);
+
+    % fetch zipped slxc files from jenkins build archive
+    attrib = getJenkinsAttributes();
+    job_url = getJenkinsJobURL(buildNum);  
+    slxcUrl = sprintf("%s/%s/artifact/*zip*/archive.zip", job_url, buildNum);
+    options = weboptions('HeaderFields',{'Authorization',...
+    ['Basic ' matlab.net.base64encode([attrib.userid ':' attrib.token])]});
+
     fprintf('Syncing archived artifacts from build %s\n', buildNum);
+    websave(zipFile, slxcUrl, options);
+
     curProj = currentProject;
-    copyfile(archivePath, curProj.RootFolder);
+    unzip(zipFile, tmpDirName);
+    copyfile(fullfile(tmpDirName, 'archive', '*'), curProj.RootFolder);
     fprintf('Sync complete: SUCCESS\n');
 end

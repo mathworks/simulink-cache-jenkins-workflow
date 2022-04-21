@@ -1,7 +1,8 @@
-%% startVars.m - Initialize variables
-% This script initializes variables required for the model to
-% work.
-% Copyright 2021 The MathWorks, Inc.
+%% startup.m - Initialize variables and environment
+% This script initializes variables and environment required for the model 
+% to work.
+%
+% Copyright 2021-2022 The MathWorks, Inc.
 
 % Register variables in the workspace before the project is loaded
 initVars = who;
@@ -17,3 +18,8 @@ apollo50_dap3dofdata
 endVars = who;
 initVars = setdiff(endVars,initVars);
 clear endVars;
+
+% setup Microsoft Visual C++ 2017 (C) compiler
+mexoptFile = fullfile(matlabroot, 'bin', 'win64','mexopts', 'msvc2017.xml');
+mexopt = sprintf('-setup:%s', mexoptFile);
+mex(mexopt,'C');

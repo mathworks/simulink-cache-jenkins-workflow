@@ -4,17 +4,14 @@ function copySLXCFilesFromJenkins()
 % builds that match the current commit hash, and then copies the build artifacts
 % from the corresponding archive
 %
-% Copyright 2021 The MathWorks, Inc.
+% Copyright 2021-2022 The MathWorks, Inc.
 
     dbName = getDBName();
     conn = sqlite(dbName);
     gitHash = getCurrentGitHash();
     fprintf('Querying successful jobs in database for git commit %s...\n', ...
         gitHash);
-    sqlquery = ['SELECT BUILD_NUMBER ' ...
-                'FROM jobResults ' ...
-                'WHERE GIT_COMMIT=''' gitHash ...
-                ''' AND buildSuccess=''1'' AND testSuccess=''1'''];
+    sqlquery = sprintf("SELECT BUILD_NUMBER FROM jobResults WHERE GIT_COMMIT='%s' AND buildSuccess='1' AND testSuccess='1'", gitHash);
     results = fetch(conn, sqlquery);
     if isempty(results)
         fprintf('No jenkins build found corresponding to Git commit: %s\n', ...
@@ -22,8 +19,12 @@ function copySLXCFilesFromJenkins()
         return;
     end
     
-    if length(results) == 1
-        copyBuildArtifacts(results{1}, false);
+    if height(results) == 1
+        if istable(results)
+            copyBuildArtifacts(results.(1));
+        else
+            copyBuildArtifacts(results{1});
+        end
     else
         fprintf('Found multiple Jenkins builds for git commit:\n');
         selection = getBuildSelection(results);
@@ -31,7 +32,11 @@ function copySLXCFilesFromJenkins()
             fprintf('Aborting sync on user request.\n');
             return;
         else
-            copyBuildArtifacts(results{selection}, false);
+            if istable(results)
+                copyBuildArtifacts(results(1,selection).(1));
+            else
+                copyBuildArtifacts(results{selection});
+            end
         end
     end
 end
