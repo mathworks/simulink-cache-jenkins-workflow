@@ -1,6 +1,6 @@
 # Workflow Example for Simulink Cache and Jenkins
 
-[![View simulink-cache-jenkins-workflow on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/100376-simulink-cache-jenkins-workflow)
+[![View Workflow for Simulink Cache and Jenkins on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/100376-workflow-for-simulink-cache-and-jenkins)
 
 
 This repository contains a Simulink® project and a few utility scripts, which highlight an Agile development workflow using Jenkins™, Git™, and Simulink® cache files.
@@ -41,18 +41,13 @@ Release R2021a
 
 ## Notes
 
-- We installed and configured Jenkins as recommended by the above-mentioned articles. In particular, we changed the Jenkins configuration for workspace and builds directory in the `config.xml` file to 
+- We installed and configured Jenkins as recommended by the above-mentioned articles. 
 
-  ```
-  <workspaceDir>L:\JenkinsProj\${ITEM_FULL_NAME}\workspace</workspaceDir>
-  <buildsDir>L:\JenkinsProj\${ITEM_FULL_NAME}\builds</buildsDir>
-  ```
-
-- In this example, we keep track of the Simulink® cache files corresponding to each Jenkins build using a SQLite database.
+- In this example, we keep track of the Simulink® cache files corresponding to each Jenkins build using a SQLite database. The database is located on a network and is accessible to everyone on the team and to the Jenkins machine.
 
 - We use the scripts in ```ci_tools``` to access this database and the build archive to retrieve the Simulink® cache files into the project's cache folder.
 
-- The script ```getJenkinsDir.m``` contains a hard-coded path to the Jenkins directory in the shared drive.
+- The script ```getJenkinsAttributes.m``` contains hard-coded userid and Jenkins API token to fetch build information from Jenkins.
 
 - Additionally, we use the script ```syncSLXCForCurrentHash.m``` to sync Simulink® cache files from the build archive.
 ![Sync Files Image](sync_img.png)
@@ -64,4 +59,4 @@ The license for Workflow Example for Simulink Cache and Jenkins is available in 
 ## Community Support
 [MATLAB Central](https://www.mathworks.com/matlabcentral)
 
-Copyright 2021 The MathWorks, Inc.
+Copyright 2022 The MathWorks, Inc.
