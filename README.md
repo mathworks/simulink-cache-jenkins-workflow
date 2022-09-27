@@ -28,7 +28,7 @@ Release R2021a
 
 ## MathWorks Products 
 
-(http://www.mathworks.com)
+(https://www.mathworks.com)
 
 * MATLAB
 * Simulink
